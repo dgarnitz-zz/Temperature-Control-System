@@ -1,11 +1,18 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, jsonify, make_response
+
+from datetime import datetime
 
 app = Flask(__name__)
 
 
 @app.route('/')
-def index():
-    render_template('index.html')
+def current():
+    return render_template('current.html')
+
+
+@app.route('/history')
+def history():
+    return render_template('history.html')
 
 
 if __name__ == '__main__':
