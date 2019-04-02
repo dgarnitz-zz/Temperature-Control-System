@@ -7,10 +7,27 @@
 
     <ul class="list-group">
         {% for room in rooms %}
-        <li class="list-group-item">
-            {{room.name}} is currently {{room.temperature}} degrees celsius
-        </li>
+        <div class="container mb-5">
+            <li class=" list-group-item">
+                {{room.name}} is currently {{room.temperature}} degrees celsius
+            </li>
+
+            <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="{{room.id}}">Lower and Upper Bound</span>
+                </div>
+                <input type="text" class="form-control" placeholder="{{room.lower_bound}}">
+                <input type="text" class="form-control" placeholder="{{room.upper_bound}}">
+                <div class=" input-group-append">
+                    <button class="btn btn-outline-primary" type="button" disabled>
+                        Set Range
+                    </button>
+                </div>
+            </div>
+        </div>
+
         {% endfor %}
     </ul>
 </div>
+
 {% endblock %}
