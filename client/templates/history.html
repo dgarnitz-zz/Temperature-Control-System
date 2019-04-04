@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="jumbotron text-center">
+    <h2>Room Temperature History</h2>
+
+    <div class="container mb-5">
+        <div class="input-group">
+            <select class="custom-select" id="options">
+                <ul>
+                    <li>
+                        <option selected>Select...</option>
+                    </li>
+
+                    {% for room in rooms %}
+                    <li>
+                        <option value="{{room.id}}">{{room.name}}</option>
+                    </li>
+
+                    {% endfor %}
+                </ul>
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit" value="submit">
+                    Retrieve History of Selected Room
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <table class="table">
+            <thead>
+                <th scope="col">Time</th>
+                <th scope="col">Temperature</th>
+                <th scope="col">Lower Bound</th>
+                <th scope="col">Upper Bound</th>
+            </thead>
+            <tbody>
+                {% for record in jc %}
+                <tr>
+                    <th scope="row">{{record.date}} {{record.time}}</th>
+                    <th>{{record.temperature}}</th>
+                    <th>{{record.lower_bound}}</th>
+                    <th>{{record.upper_bound}}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
