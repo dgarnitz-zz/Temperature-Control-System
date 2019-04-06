@@ -1,5 +1,7 @@
 package master;
 
+import database.UpdateObject;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;

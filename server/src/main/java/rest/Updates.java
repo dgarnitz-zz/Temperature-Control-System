@@ -1,7 +1,7 @@
 package rest;
 
 import database.MongoDbClient;
-import database.Update;
+import database.UpdateObject;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -20,12 +20,14 @@ public class Updates {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateTemperatures(Update update) {
+    public Response updateTemperatures(UpdateObject updateObject) {
+        System.out.println("UpdateObject");
+
         try {
-            dbClient.save(update);
+            dbClient.save(updateObject);
 
             //TODO send updates if needed (change in temperature ranges)
-            return Response.ok().entity(update).build();
+            return Response.ok().entity(updateObject).build();
 
         } catch (Exception e) { //TODO particular exception
             e.printStackTrace();
