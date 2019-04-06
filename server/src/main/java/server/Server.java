@@ -42,12 +42,12 @@ public class Server {
     }
 
     public static void main(String[] args) throws IOException {
-        // final Server server = new Server();
-        MongoDbClient client = new MongoDbClient();
-        client.queryAll();
+         final Server server = new Server();
+//        MongoDbClient client = new MongoDbClient();
+//        client.queryAll();
         System.exit(0);
-        // System.out.println("server.Server Started. Press Ctrl-D to exit...");
-        // while (System.in.read() != -1) {}
-        // server.shutdown();
+         System.out.println("server.Server Started. Press Ctrl-D to exit...");
+         while (System.in.read() != -1) {}
+         server.shutdown();
     }
 }

@@ -48,3 +48,9 @@ task server(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
 }
+
+task master(type: JavaExec) {
+    main = "master.MasterConnect"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+}
