@@ -38,7 +38,7 @@ public class Master {
 
     private DateFormat df;
 
-    Master(int lab) {
+    public Master(int lab) {
         this.lab = lab;
         float startTemp = createStartTemp(highTemp, lowTemp);
         tempSensor1 = new TempSensor(startTemp);
@@ -51,11 +51,11 @@ public class Master {
         heater = new Heater();
         df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
         setRange(20,25);
-        try {
-            runLoop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            runLoop();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
     }
 
