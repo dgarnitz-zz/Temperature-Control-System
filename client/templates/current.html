@@ -16,13 +16,16 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="{{room.id}}">Lower and Upper Bound</span>
                 </div>
-                <input type="text" class="form-control" placeholder="{{room.lower_bound}}">
-                <input type="text" class="form-control" placeholder="{{room.upper_bound}}">
-                <div class=" input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" disabled>
-                        Set Range
-                    </button>
-                </div>
+                <form id="upload-form" action="{{ url_for('upload') }}" method="POST">
+                    <div class=" input-group-append">
+                        <input type="text" class="form-control" placeholder="{{room.lower_bound}}">
+                        <input type="text" class="form-control" placeholder="{{room.upper_bound}}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            Set Range
+                        </button>
+                    </div>
+                </form>
+
             </div>
         </div>
 
