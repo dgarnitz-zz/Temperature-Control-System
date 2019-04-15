@@ -27,9 +27,9 @@ public class Updates {
         try {
             dbClient.save(updateObject);
             Flags flags = new Flags(false, false, false);
-            updateObject.setFlags(flags);
-            updateObject.setLower(30);
-            updateObject.setUpper(35);
+//            updateObject.setFlags(flags);
+//            updateObject.setLower(30);
+//            updateObject.setUpper(35);
 
 
             //TODO send updates if needed (change in temperature ranges)

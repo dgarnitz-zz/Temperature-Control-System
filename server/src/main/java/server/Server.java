@@ -3,7 +3,10 @@ package server;
 import java.io.IOException;
 import java.net.URI;
 
+import master.Flags;
+import database.UpdateObject;
 import database.MongoDbClient;
+import com.mongodb.MongoException;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
@@ -42,9 +45,17 @@ public class Server {
     }
 
     public static void main(String[] args) throws IOException {
-         final Server server = new Server();
-//        MongoDbClient client = new MongoDbClient();
-//        client.queryAll();
+        final Server server = new Server();
+
+//        Flags flags = new Flags(true, true, true);
+//        UpdateObject test = new UpdateObject(21.5f, 19.5f, 20.1f, "yyyy-mm-dd", 1, flags);
+//        try{
+//            server.dbClient.save(test);
+//        } catch (MongoException ex) {
+//            System.out.println(ex.getMessage());
+//        }
+
+        server.dbClient.queryAll();
 
          System.out.println("server.Server Started. Press Ctrl-D to exit...");
          while (System.in.read() != -1) {}

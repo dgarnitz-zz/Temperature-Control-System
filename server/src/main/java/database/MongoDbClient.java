@@ -1,5 +1,7 @@
 package database;
 
+import com.google.gson.Gson;
+
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
@@ -26,15 +28,24 @@ public class MongoDbClient {
 
     /**
      * Save the object into the database.
-     * @param o - Object to be saved.
+     * @param update - UpdateObject to be saved.
      * @throws Exception - If it fails to save the object to the database.
      */
-    public void save(Object o) throws Exception {
-        //TODO save object into the database
+    public void save(UpdateObject update) throws MongoException {
+        Gson gson = new Gson();
+        String json = gson.toJson(update);
+        test.insertOne(Document.parse(json));
     }
 
     public void queryAll() {
       System.out.println("Query:");
-      System.out.println(test.find().first());
+        MongoCursor<Document> cursor = test.find().iterator();
+        try {
+            while (cursor.hasNext()) {
+                System.out.println(cursor.next().toJson());
+            }
+        } finally {
+            cursor.close();
+        }
     }
 }
