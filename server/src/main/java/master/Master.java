@@ -9,9 +9,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Main class of the Master package, contains the core logic and functionality.
+ */
 public class Master {
 
     private int lab;
+    private static final int highTemp = 20; //this multiplies 0-1 by val
+    private static final int lowTemp = 10; //this adds val to result of previous multiplication (i.e. 0-1 * 20 = 0-20 ... 0-20 + 10 = 10-30)
+    private static final float tempThreshold = 10; //how different sensor clusters can be from each other
+    private static final int sensorCacheStorage = 100;
+    private static final float initialLowRange = 20;
+    private static final float initialUpperRange = 25;
+    private static final int timeStepSeconds = 10;
 
     private TempSensor tempSensor1;
     private TempSensor tempSensor2;
@@ -19,28 +29,26 @@ public class Master {
     private boolean sensor1Flag = false;
     private boolean sensor2Flag = false;
     private boolean sensor3Flag = false;
-    private int highTemp = 20; //this multiplies 0-1 by val
-    private int lowTemp = 10; //this adds val to result of previous multiplication (i.e. 0-1 * 20 = 0-20 ... 0-20 + 10 = 10-30)
-    private float tempThreshold = 10; //how different sensor clusters can be from each other
     private ArrayList<Float> sensor1Cache;
     private ArrayList<Float> sensor2Cache;
     private ArrayList<Float> sensor3Cache;
     private ArrayList<Float> clusterCache;
-    private int sensorCacheStorage = 100;
-    private boolean temp1Check;
-    private boolean temp2Check;
-    private boolean temp3Check;
 
     private Heater heater;
     private float lowRange;
     private float highRange;
-    private float hysteresisValue = 2.5f;
 
     private DateFormat df;
+    private MasterConnect masterConnect;
 
+    /**
+     * Constructor that initialises all temp sensors, heaters, caches, master connect and finally enters the infinite
+     * loop.
+     * @param lab the lab number
+     */
     public Master(int lab) {
         this.lab = lab;
-        float startTemp = createStartTemp(highTemp, lowTemp);
+        float startTemp = createStartTemp();
         tempSensor1 = new TempSensor(startTemp);
         tempSensor2 = new TempSensor(startTemp);
         tempSensor3 = new TempSensor(startTemp);
@@ -49,35 +57,76 @@ public class Master {
         sensor3Cache = new ArrayList<>();
         clusterCache = new ArrayList<>();
         heater = new Heater();
+        setLowerRange(initialLowRange);
+        setUpperRange(initialUpperRange);
         df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-        setRange(20,25);
-//        try {
-//            runLoop();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        masterConnect = new MasterConnect(this);
+        try {
+            runLoop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
-    public void setRange(float lowRange, float highRange) {
+    /**
+     * sets lower range for the temperature of the room
+     * @param lowRange
+     */
+    public void setLowerRange(float lowRange) {
         this.lowRange = lowRange;
+    }
+
+    /**
+     * sets the upper range for the temperature of the room
+     * @param highRange
+     */
+    public void setUpperRange(float highRange) {
         this.highRange = highRange;
     }
 
-    public float getLowRange() {
+    /**
+     * returns lower range
+     * @return lowRange
+     */
+    public float getLowerRange() {
         return lowRange;
     }
 
-    public float getHighRange() {
+    /**
+     * returns the upper range
+     * @return highRange
+     */
+    public float getUpperRange() {
         return highRange;
     }
 
+    /**
+     * returns the latest temperature added to the cluster cache
+     * @return current temperature
+     */
+    public float getCurrentTemp() {
+        return clusterCache.get(clusterCache.size() - 1);
+    }
+
+    /**
+     * returns the lab number of the master
+     * @return lab
+     */
+    public int getLab() {
+        return lab;
+    }
+
+    /**
+     * Fixes the sensor that's passed
+     * @param sensor number of which sensor to fix
+     */
     public void fixSensor(int sensor) {
         if (sensor >= 1 && sensor <= 3) {
             switch(sensor) {
                 case 1:
                     if (sensor1Flag) {
-                        tempSensor1.fixSensor(clusterCache.get(clusterCache.size() - 1));
+                        tempSensor1.fixSensor(getCurrentTemp());
                         sensor1Flag = false;
                         break;
                     }
@@ -88,7 +137,7 @@ public class Master {
 
                 case 2:
                     if (sensor2Flag) {
-                        tempSensor2.fixSensor(clusterCache.get(clusterCache.size() - 1));
+                        tempSensor2.fixSensor(getCurrentTemp());
                         sensor2Flag = false;
                         break;
                     }
@@ -99,7 +148,7 @@ public class Master {
 
                 case 3:
                     if (sensor3Flag) {
-                        tempSensor3.fixSensor(clusterCache.get(clusterCache.size() - 1));
+                        tempSensor3.fixSensor(getCurrentTemp());
                         sensor3Flag = false;
                         break;
                     }
@@ -114,17 +163,31 @@ public class Master {
         }
     }
 
-    private float createStartTemp(int highTemp, int lowTemp) {
+    /**
+     * creates a random starting temperature between 10-30 for all sensors.
+     * @return temperature between 10-30 in one dp
+     */
+    private float createStartTemp() {
         double randomDouble = Math.random(); //0-1
         double tempDouble = (randomDouble * highTemp) + lowTemp; //10-30
         return roundOneDp(tempDouble); //converts to 1dp
     }
 
+    /**
+     * rounds a double to a one dp float
+     * @param temp the temperature to be rounded
+     * @return rounded temperature
+     */
     private float roundOneDp(double temp) {
         return (float) (Math.round(temp * 10) / 10.0); //converts to 1dp
     }
 
-    private void sensorUpdate() {
+    /**
+     * Called at every time step to check the functionality of the sensors (heartbeat), add the average of the
+     * functioning sensors to the cluster cache, checks the temperature room of the room and heats accordingly and
+     * applies temp change to each sensor.
+     */
+    public void sensorUpdate() {
         checkTemps();
         addToClusterCache();
         checkRange();
@@ -132,67 +195,78 @@ public class Master {
         System.out.println("sensor2: " + sensor2Cache.get(sensor2Cache.size() -1));
         System.out.println("sensor3: " + sensor3Cache.get(sensor3Cache.size() -1));
         System.out.println("range: " + lowRange + " - " + highRange);
+        heat();
+        tempChange();
+        System.out.println("temp after processing: " + getCurrentTemp());
+    }
+
+    /**
+     * If the heater is on, heats each sensor
+     */
+    private void heat() {
         if(heater.getHeaterState()) {
             tempSensor1.heatTemp();
             tempSensor2.heatTemp();
             tempSensor3.heatTemp();
         }
+    }
+
+    /**
+     * applies random temperature change to each sensor
+     */
+    private void tempChange() {
         tempSensor1.tempChange();
         tempSensor2.tempChange();
         tempSensor3.tempChange();
-        System.out.println("temp after processing: " + clusterCache.get(clusterCache.size() - 1));
     }
 
+    /**
+     * applies the hysteresis loop explained in the report to safely control the heater
+     */
     private void checkRange() {
-        if (clusterCache.get(clusterCache.size() - 1) < (lowRange - hysteresisValue)) {
+        if (getCurrentTemp() < lowRange) {
             heater.setHeater(true);
         }
-        else if (clusterCache.get(clusterCache.size() - 1) > (highRange + hysteresisValue)) {
+        else if (getCurrentTemp() > highRange) {
             heater.setHeater(false);
         }
     }
 
+    /**
+     * Uses a heartbeat method to ensure the functionality of the sensors, if a sensor is detected as malfunctioning
+     * it is flagged
+     */
     private void checkTemps() {
         float temp1 = tempSensor1.getCurrentTemp();
         float temp2 = tempSensor2.getCurrentTemp();
         float temp3 = tempSensor3.getCurrentTemp();
-        temp1Check = false;
-        temp2Check = false;
-        temp3Check = false;
         if (Math.abs(temp1 - temp2) < tempThreshold && Math.abs(temp1 - temp3) < tempThreshold && Math.abs(temp2 - temp3) < tempThreshold && !sensor1Flag && !sensor2Flag && !sensor3Flag) {
-            temp1Check = true;
+
             addToSensorCache(temp1, 1);
 
-            temp2Check = true;
             addToSensorCache(temp2, 2);
 
-            temp3Check = true;
             addToSensorCache(temp3, 3);
-            System.out.println("ALL IN RANGE");
         }
         else if ((Math.abs(temp1 - temp2) < tempThreshold) && !sensor1Flag && !sensor2Flag) {
 
-            temp1Check = true;
             addToSensorCache(temp1, 1);
 
-            temp2Check = true;
             addToSensorCache(temp2, 2);
 
             System.out.println("FLAG: Sensor 3 vastly different, investigate sensor 3");
-            sensor1Flag = true;
+            sensor3Flag = true;
             addToSensorCache(temp3, 3);
 
         }
         else if ((Math.abs(temp1 - temp3) < tempThreshold) && !sensor1Flag && !sensor3Flag) {
 
-            temp1Check = true;
             addToSensorCache(temp1, 1);
 
             System.out.println("FLAG: Sensor 2 vastly different, investigate sensor 2");
             sensor2Flag = true;
             addToSensorCache(temp2, 2);
 
-            temp3Check = true;
             addToSensorCache(temp3, 3);
         }
         else if ((Math.abs(temp2 - temp3) < tempThreshold) && !sensor2Flag && !sensor3Flag) {
@@ -200,15 +274,12 @@ public class Master {
             sensor1Flag = true;
             addToSensorCache(temp1, 1);
 
-            temp2Check = true;
             addToSensorCache(temp2, 2);
 
-            temp3Check = true;
             addToSensorCache(temp3, 3);
         }
         else { //if no sensors are within threshold then checks which is within threshold of previous temp in cache and uses that
             if ((Math.abs(temp1 - clusterCache.get(clusterCache.size() - 1)) < tempThreshold) && !sensor1Flag) {
-                temp1Check = true;
                 addToSensorCache(temp1, 1);
             }
             else {
@@ -217,7 +288,6 @@ public class Master {
                 addToSensorCache(temp1, 1);
             }
             if ((Math.abs(temp2 - clusterCache.get(clusterCache.size() - 1)) < tempThreshold) && !sensor2Flag) {
-                temp2Check = true;
                 addToSensorCache(temp2, 2);
             }
             else {
@@ -226,7 +296,6 @@ public class Master {
                 addToSensorCache(temp2, 2);
             }
             if ((Math.abs(temp3 - clusterCache.get(clusterCache.size() - 1)) < tempThreshold) && !sensor3Flag) {
-                temp3Check = true;
                 addToSensorCache(temp3, 3);
             }
             else {
@@ -236,39 +305,48 @@ public class Master {
             }
         }
     }
+
+    /**
+     * Adds the average of the functioning sensors to the cluster cache
+     */
     private void addToClusterCache() {
         float temp;
         int index = sensor1Cache.size() - 1;
-        if (temp1Check && temp2Check && temp3Check) {
+        if (!sensor1Flag && !sensor2Flag && !sensor3Flag) {
             temp = (sensor1Cache.get(index) + sensor2Cache.get(index) + sensor3Cache.get(index)) / 3;
             clusterCache.add(roundOneDp(temp));
         }
-        else if (temp1Check && temp2Check) {
+        else if (!sensor1Flag && !sensor2Flag) {
             temp = (sensor1Cache.get(index) + sensor2Cache.get(index)) / 2;
             clusterCache.add(roundOneDp(temp));
         }
-        else if (temp1Check && temp3Check) {
+        else if (!sensor1Flag && !sensor3Flag) {
             temp = (sensor1Cache.get(index) + sensor3Cache.get(index)) / 2;
             clusterCache.add(roundOneDp(temp));
         }
-        else if (temp2Check && temp3Check) {
+        else if (!sensor2Flag && !sensor3Flag) {
             temp = (sensor2Cache.get(index) + sensor3Cache.get(index)) / 2;
             clusterCache.add(roundOneDp(temp));
         }
-        else if (temp1Check) {
+        else if (!sensor1Flag) {
             temp = sensor1Cache.get(index);
             clusterCache.add(roundOneDp(temp));
         }
-        else if (temp2Check) {
+        else if (!sensor2Flag) {
             temp = sensor2Cache.get(index);
             clusterCache.add(roundOneDp(temp));
         }
-        else if (temp3Check) {
+        else if (!sensor3Flag) {
             temp = sensor3Cache.get(index);
             clusterCache.add(roundOneDp(temp));
         }
     }
 
+    /**
+     * Adds the temperature of the sensor to its cache
+     * @param temp the temperature of the sensor
+     * @param sensor the associated sensor
+     */
     private void addToSensorCache(float temp, int sensor) {
         switch (sensor) {
             case 1:
@@ -306,32 +384,40 @@ public class Master {
         }
     }
 
-    private void createUpdate() {
-        float upper = getHighRange();
-        float lower = getLowRange();
-        float currentTemp = clusterCache.get(clusterCache.size() - 1);
-        String dateTime = dateTime();
-        int lab = this.lab;
-        Flags flags = createFlags();
-        UpdateObject update = new UpdateObject(upper, lower, currentTemp, dateTime, lab, flags);
-    }
-
-    private Flags createFlags() {
+    /**
+     * Creates flags that represent the state of the cluster
+     * @return flag object of the three flags
+     */
+    public Flags createFlags() {
         return new Flags(this.sensor1Flag, this.sensor2Flag, this.sensor3Flag);
     }
 
-    private String dateTime() {
+    /**
+     * returns a formatted date time string
+     * @return formatted date time
+     */
+    public String getDateTime() {
         Date dateTime = new Date();
         return df.format(dateTime);
     }
 
+    /**
+     * infinite loop where an update is sent and received at a set time step
+     * @throws InterruptedException
+     */
     private void runLoop() throws InterruptedException {
-        Instant start = Instant.now();
-
         while(true) {
             sensorUpdate();
-            createUpdate();
-            TimeUnit.SECONDS.sleep(10);
+            masterConnect.processResponse();
+            TimeUnit.SECONDS.sleep(timeStepSeconds);
         }
+    }
+
+    /**
+     * creates a master object
+     * @param args
+     */
+    public static void main(String[] args) {
+        new Master(1);
     }
 }

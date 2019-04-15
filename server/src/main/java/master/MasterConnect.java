@@ -7,41 +7,82 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+/**
+ * Class to handle the master-server connection
+ */
 public class MasterConnect {
 
     public static final String SERVER_ADDRESS = "http://localhost:8080";
 
-    Client client;
+    private Client client;
+    private Master master;
+    private UpdateObject sentObject;
 
-    public MasterConnect() {
+    /**
+     * constructor that gets passed the master it connects to the server
+     * @param master
+     */
+    public MasterConnect(Master master) {
         client = ClientBuilder.newBuilder().build();
+        this.master = master;
     }
 
+    /**
+     * returns update object of the current state of the master
+     * @param endpoint the endpoint of the server that is to be connected to
+     * @return the formatted object
+     */
     public Response getResponse(String endpoint) {
-        UpdateObject updateObject = new UpdateObject(0.0f, 0.0f, 1.0f, "now", 1,
-                new Flags(true, false, true));
+        sentObject = createUpdate();
 
         return client.target(SERVER_ADDRESS + endpoint)
                 .request()
-                .post(Entity.json(updateObject));
+                .post(Entity.json(sentObject));
     }
 
-    public static void main(String[] args) {
+    /**
+     * creates update of the current sate of the master
+     * @return update object
+     */
+    private UpdateObject createUpdate() {
+        return new UpdateObject(master.getUpperRange(), master.getLowerRange(), master.getCurrentTemp(), master.getDateTime(), master.getLab(), master.createFlags());
+    }
 
-        MasterConnect mc = new MasterConnect();
-        Response response = mc.getResponse("/update");
-
-        System.out.println(response);
+    /**
+     * sends and receives an update and compares them to see if any changes to the master need to be made, times out
+     * after 200ms
+     */
+    public void processResponse() {
+        Response response = getResponse("/update");
         try {
             if (response.getStatus() == 200) {
-                UpdateObject updateObject = response.readEntity(UpdateObject.class);
-
-                System.out.println(updateObject.getDateTime());
+                UpdateObject receivedObject = response.readEntity(UpdateObject.class);
+                compareResponse(receivedObject);
             }
         } finally {
             response.close();
         }
+    }
 
-//        Master master = new Master(1);
+    /**
+     * Compares sent with response update, changes the range or flags if a difference is found
+     * @param receivedObject
+     */
+    private void compareResponse(UpdateObject receivedObject) {
+        if (receivedObject.getLower() != sentObject.getLower()) {
+            master.setLowerRange(receivedObject.getLower());
+        }
+        if (receivedObject.getUpper() != sentObject.getUpper()) {
+            master.setUpperRange(receivedObject.getUpper());
+        }
+        if (!receivedObject.getFlags().getSensor1Flag() && sentObject.getFlags().getSensor1Flag()) {
+            master.fixSensor(1);
+        }
+        if (!receivedObject.getFlags().getSensor2Flag() && sentObject.getFlags().getSensor2Flag()) {
+            master.fixSensor(2);
+        }
+        if (!receivedObject.getFlags().getSensor3Flag() && sentObject.getFlags().getSensor3Flag()) {
+            master.fixSensor(3);
+        }
     }
 }
