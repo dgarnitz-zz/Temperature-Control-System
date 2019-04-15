@@ -14,6 +14,19 @@ public class Flags {
         this.sensor3Flag = sensor3Flag;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Flags) {
+            Flags other = (Flags) o;
+            return this.sensor1Flag == other.sensor1Flag
+                    && this.sensor2Flag == other.sensor2Flag
+                    && this.sensor3Flag == other.sensor3Flag;
+
+        } else {
+            return false;
+        }
+    }
+
     public boolean isSensor1Flag() {
         return sensor1Flag;
     }

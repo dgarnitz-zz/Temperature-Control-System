@@ -21,7 +21,6 @@ public class ChangeTemp {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    //@Produces(MediaType.APPLICATION_JSON)
     public Response changeTemp(UpdateObject update) {
 
         System.out.println(update.getUpper());

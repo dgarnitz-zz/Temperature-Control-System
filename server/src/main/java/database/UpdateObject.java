@@ -22,6 +22,21 @@ public class UpdateObject {
         this.flags = flags;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof UpdateObject) {
+            UpdateObject other = (UpdateObject) o;
+            return this.upper == other.upper
+                    && this.lower == other.lower
+                    && this.currentTemp == other.currentTemp
+                    && this.dateTime.equals(other.dateTime)
+                    && this.lab == other.lab
+                    && this.flags.equals(other.flags);
+        } else {
+            return false;
+        }
+    }
+
     public float getUpper() {
         return upper;
     }
