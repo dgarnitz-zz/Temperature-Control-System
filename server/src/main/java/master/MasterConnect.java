@@ -53,7 +53,8 @@ public class MasterConnect {
      * after 200ms
      */
     public void processResponse() {
-        Response response = getResponse("/update");
+        Response response = getResponse("/update/master");
+        System.out.println(response);
         try {
             if (response.getStatus() == 200) {
                 UpdateObject receivedObject = response.readEntity(UpdateObject.class);

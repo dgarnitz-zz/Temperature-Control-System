@@ -11,34 +11,73 @@ Rooms = Rooms()
 JC = JackColeHistory()
 JH = JohnHoneyHistory()
 
+rooms = []
+currentUpdate = {}
+
 
 @app.route('/')
 def current():
-    return render_template('current.html', rooms=Rooms)
+    global currentUpdate
+    r = requests.get('http://localhost:8080/history/current')
+    object = json.loads(r.text)
+    currentUpdate = object
+    return render_template('current.html', rooms=[currentUpdate])
 
 
 @app.route('/upload', methods=['post'])
 def upload():
 
-    r = requests.post('http://localhost:8080/changetemp', data=json.dumps({
+    print(currentUpdate)
+
+    lower = request.form["lower"]
+    upper = request.form["upper"]
+
+    currentUpdate["lower"] = lower
+    currentUpdate["upper"] = upper
+
+    print(currentUpdate)
+
+    r = requests.post('http://localhost:8080/update/changetemp', data=json.dumps(currentUpdate), headers = {'Content-type': 'application/json'})
+    '''
+        {
         "upper": 99.3, "lower": 16.7, "currentTemp": 21.0,
         "dateTime": "now", "lab": 1,
         "flags": {"sensor1Flag": True, "sensor2Flag": True, "sensor3Flag": True}
-    }),
-        headers={'Content-type': 'application/json'
-                 })
-    print(r.status_code)
-    print(r.text)
-    return render_template('current.html', rooms=Rooms)
+        }
+    '''
+
+    if (r.status_code != 200):
+        pass
+
+        #return render_template('error.html')
+        # alert(failure)
+    else:
+        newUpdate = json.loads(r.text)
+
+        return render_template('current.html', rooms=[newUpdate])
 
 
 @app.route('/history')
 def history():
-    print("hello")
-    r = requests.get('http://localhost:8080/history')
-    print(r.text)
-    return render_template('history.html', rooms=Rooms, jc=JC, jh=JH)
+    global rooms
+    r = requests.get('http://localhost:8080/history/rooms')
 
+    print(r.text)
+    rooms = json.loads(r.text)
+
+    return render_template('history.html', rooms=rooms, jc=JC, jh=JH)
+
+
+@app.route("/viewhistory", methods=["post"])
+def view_history():
+    room_id = request.form["option"]
+    print(room_id)
+    r = requests.get('http://localhost:8080/history/view{}'.format(room_id))
+
+    print(r.text)
+    room = json.loads(r.text)
+
+    return render_template('history.html', rooms=rooms, lab=room)
 
 if __name__ == '__main__':
     app.run(debug=True)

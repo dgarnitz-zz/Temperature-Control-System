@@ -9,7 +9,7 @@
         {% for room in rooms %}
         <div class="container mb-5">
             <li class=" list-group-item">
-                {{room.name}} is currently {{room.temperature}} degrees celsius
+                {{room.lab}} is currently {{room.currentTemp}} degrees celsius
             </li>
 
             <div class="input-group input-group-sm">
@@ -18,14 +18,13 @@
                 </div>
                 <form id="upload-form" action="{{ url_for('upload') }}" method="POST">
                     <div class=" input-group-append">
-                        <input type="text" class="form-control" placeholder="{{room.lower_bound}}">
-                        <input type="text" class="form-control" placeholder="{{room.upper_bound}}">
+                        <input type="text" name="lower" class="form-control" placeholder="{{room.lower}}">
+                        <input type="text" name="upper" class="form-control" placeholder="{{room.upper}}">
                         <button class="btn btn-outline-secondary" type="submit">
                             Set Range
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
 

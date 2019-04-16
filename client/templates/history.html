@@ -5,8 +5,9 @@
     <h2>Room Temperature History</h2>
 
     <div class="container mb-5">
+    <form method="POST"  action="{{ url_for('view_history') }}">
         <div class="input-group">
-            <select class="custom-select" id="options">
+            <select class="custom-select" name="option" id="options">
                 <ul>
                     <li>
                         <option selected>Select...</option>
@@ -14,7 +15,7 @@
 
                     {% for room in rooms %}
                     <li>
-                        <option value="{{room.id}}">{{room.name}}</option>
+                        <option value="{{room.id}}">{{room.id}}</option>
                     </li>
 
                     {% endfor %}
@@ -26,6 +27,7 @@
                 </button>
             </div>
         </div>
+    </form>
     </div>
 
 
@@ -38,12 +40,12 @@
                 <th scope="col">Upper Bound</th>
             </thead>
             <tbody>
-                {% for record in jc %}
+                {% for record in lab %}
                 <tr>
                     <th scope="row">{{record.date}} {{record.time}}</th>
-                    <th>{{record.temperature}}</th>
-                    <th>{{record.lower_bound}}</th>
-                    <th>{{record.upper_bound}}</th>
+                    <th>{{record.currentTemp}}</th>
+                    <th>{{record.lower}}</th>
+                    <th>{{record.upper}}</th>
                 </tr>
                 {% endfor %}
             </tbody>

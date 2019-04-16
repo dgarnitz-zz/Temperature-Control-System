@@ -32,20 +32,20 @@ public class MongoDbClient {
      * @throws Exception - If it fails to save the object to the database.
      */
     public void save(UpdateObject update) throws MongoException {
-        Gson gson = new Gson();
-        String json = gson.toJson(update);
-        test.insertOne(Document.parse(json));
+//        Gson gson = new Gson();
+//        String json = gson.toJson(update);
+//        test.insertOne(Document.parse(json));
     }
 
     public void queryAll() {
-      System.out.println("Query:");
-        MongoCursor<Document> cursor = test.find().iterator();
-        try {
-            while (cursor.hasNext()) {
-                System.out.println(cursor.next().toJson());
-            }
-        } finally {
-            cursor.close();
-        }
+//      System.out.println("Query:");
+//        MongoCursor<Document> cursor = test.find().iterator();
+//        try {
+//            while (cursor.hasNext()) {
+//                System.out.println(cursor.next().toJson());
+//            }
+//        } finally {
+//            cursor.close();
+//        }
     }
 }

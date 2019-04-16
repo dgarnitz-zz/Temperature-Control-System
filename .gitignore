@@ -9,3 +9,6 @@ bin/
 .settings
 
 out/
+client/env
+client/__pycache__
+*/*.pyc

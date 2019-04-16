@@ -4,6 +4,7 @@ import database.MongoDbClient;
 import database.UpdateObject;
 import master.Flags;
 
+import java.util.HashMap;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -18,7 +19,10 @@ public class Updates {
     @Inject
     private MongoDbClient dbClient;
 
+    private HashMap<Integer, UpdateObject> tempRanges = new HashMap<>();
+
     @POST
+    @Path("/master")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateTemperatures(UpdateObject updateObject) {
@@ -33,7 +37,12 @@ public class Updates {
 
 
             //TODO send updates if needed (change in temperature ranges)
-            return Response.ok().entity(updateObject).build();
+            int id = updateObject.getLab();
+            if (tempRanges.containsKey(id)) {
+                return Response.ok().entity(tempRanges.get(id)).build();
+            } else {
+                return Response.ok().entity(updateObject).build();
+            }
 
         } catch (Exception e) { //TODO particular exception
             e.printStackTrace();
@@ -42,6 +51,19 @@ public class Updates {
                     Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                     "Database error").build();
         }
+    }
+
+    @POST
+    @Path("/changetemp")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changeTemp(UpdateObject update) {
+        int id = update.getLab();
+        System.out.println("Got change temp " + id);
+        tempRanges.put(id, update);
+
+        return Response.ok().entity(update).build();
+
     }
 
 }
