@@ -67,6 +67,7 @@ public class History {
     public Response getRooms() {
 
         //TODO db.fetch list of rooms
+        dbClient.queryRoom(1);
 
         ArrayList<Room> rooms = new ArrayList<>();
         rooms.add(new Room(1));

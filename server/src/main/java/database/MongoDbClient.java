@@ -15,6 +15,8 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
+import com.mongodb.Block;
+import com.mongodb.client.model.Filters;
 
 import org.bson.Document;
 
@@ -48,9 +50,17 @@ public class MongoDbClient {
         return update;
     }
 
-    public void queryAll() {
-//      System.out.println("Query:");
-//        MongoCursor<Document> cursor = readings.find().iterator();
+    public void queryRoom(int roomID) {
+      System.out.println("Query:");
+        Block<Document> printBlock = new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                System.out.println(document.toJson());
+            }
+        };
+
+        readings.find(Filters.eq("lab", roomID)).forEach(printBlock);
+//        MongoCursor<Document> cursor = readings.find({ "lab": roomID }).iterator();
 //        try {
 //            while (cursor.hasNext()) {
 //                System.out.println(cursor.next().toJson());

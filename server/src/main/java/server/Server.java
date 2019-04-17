@@ -55,7 +55,7 @@ public class Server {
 //            System.out.println(ex.getMessage());
 //        }
 
-        server.dbClient.queryAll();
+//        server.dbClient.queryAll();
 
          System.out.println("server.Server Started. Press Ctrl-D to exit...");
          while (System.in.read() != -1) {}
