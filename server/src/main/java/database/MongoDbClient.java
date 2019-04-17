@@ -44,6 +44,10 @@ public class MongoDbClient {
 //        readings.insertOne(Document.parse(json));
     }
 
+    /**
+     * This method fetches the newest temperature reading stored in the database
+     * @return An UpdateObject containing the latest temperature reading stored in the DB
+     */
     public UpdateObject fetchLatestUpdate() {
         Document myDoc = readings.find().sort(new Document("_id", -1)).first();
         System.out.println(myDoc);
@@ -54,6 +58,11 @@ public class MongoDbClient {
         return update;
     }
 
+    /**
+     * This method fetches the entire history of a given room/lab
+     * @param roomID the id of the room/lab
+     * @return an arraylist of UpdateObjects containing the temperature data
+     */
     public ArrayList<UpdateObject> queryHistory(int roomID) {
       ArrayList<UpdateObject> history = new ArrayList<>();
       Gson gson = new Gson();
@@ -71,6 +80,10 @@ public class MongoDbClient {
         return history;
     }
 
+    /**
+     * This method returns a list of all labs/rooms that have readings stored in the DB
+     * @return an ArrayList of integers containing lab/room IDs
+     */
     public ArrayList<Integer> queryRooms() {
         System.out.println("query rooms");
         ArrayList<Integer> rooms = new ArrayList<>();
