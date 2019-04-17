@@ -37,10 +37,15 @@ public class MongoDbClient {
 //        readings.insertOne(Document.parse(json));
     }
 
-    public void fetchLatestUpdate() {
+    public UpdateObject fetchLatestUpdate() {
         //request last inserted doc
         Document myDoc = readings.find().sort(new Document("_id", -1)).first();
         System.out.println(myDoc);
+
+        Gson gson = new Gson();
+        UpdateObject update = gson.fromJson(myDoc.toJson(), UpdateObject.class);
+
+        return update;
     }
 
     public void queryAll() {
