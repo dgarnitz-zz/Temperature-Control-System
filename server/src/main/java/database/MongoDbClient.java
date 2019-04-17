@@ -1,5 +1,7 @@
 package database;
 
+import java.util.*;
+
 import com.google.gson.Gson;
 
 import com.mongodb.MongoClient;
@@ -34,9 +36,9 @@ public class MongoDbClient {
      * @throws Exception - If it fails to save the object to the database.
      */
     public void save(UpdateObject update) throws MongoException {
-//        Gson gson = new Gson();
-//        String json = gson.toJson(update);
-//        readings.insertOne(Document.parse(json));
+        Gson gson = new Gson();
+        String json = gson.toJson(update);
+        readings.insertOne(Document.parse(json));
     }
 
     public UpdateObject fetchLatestUpdate() {
@@ -50,23 +52,22 @@ public class MongoDbClient {
         return update;
     }
 
-    public void queryRoom(int roomID) {
+    public ArrayList<UpdateObject> queryHistory(int roomID) {
       System.out.println("Query:");
-        Block<Document> printBlock = new Block<Document>() {
-            @Override
-            public void apply(final Document document) {
-                System.out.println(document.toJson());
-            }
-        };
+
+      ArrayList<UpdateObject> history = new ArrayList<>();
+      Gson gson = new Gson();
+      Block<Document> printBlock = new Block<Document>() {
+          @Override
+          public void apply(final Document document) {
+              System.out.println(document.toJson());
+              UpdateObject update = gson.fromJson(document.toJson(), UpdateObject.class);
+              history.add(update);
+          }
+      };
 
         readings.find(Filters.eq("lab", roomID)).forEach(printBlock);
-//        MongoCursor<Document> cursor = readings.find({ "lab": roomID }).iterator();
-//        try {
-//            while (cursor.hasNext()) {
-//                System.out.println(cursor.next().toJson());
-//            }
-//        } finally {
-//            cursor.close();
-//        }
+
+        return history;
     }
 }

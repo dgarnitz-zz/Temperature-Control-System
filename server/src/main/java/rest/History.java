@@ -26,19 +26,9 @@ public class History {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHistory(@PathParam("id") int id) {
-        //TODO db.fetch history based on params
 
-        UpdateObject update = new UpdateObject(
-	    22.3f, 16.7f, 21.0f, "now", 1, new Flags(true, true, true)
-        );
+        ArrayList<UpdateObject> history = dbClient.queryHistory(id);
 
-        ArrayList<UpdateObject> history = new ArrayList<>();
-
-        history.add(new UpdateObject(1.0f, 1.0f, 1.0f, "now", 1, new Flags(true,true,true)));
-        history.add(new UpdateObject(3.0f, 3.0f, 3.0f, "now", 1, new Flags(true,true,true)));
-        history.add(new UpdateObject(4.0f, 6.0f, 7.0f, "now", 1, new Flags(true,true,true)));
-
-	    //TODO send updates if needed (change in temperature ranges)
 	    return Response.ok().entity(history).build();
 
     }
@@ -66,12 +56,7 @@ public class History {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRooms() {
 
-        //TODO db.fetch list of rooms
-        dbClient.queryRoom(1);
-
-        ArrayList<Room> rooms = new ArrayList<>();
-        rooms.add(new Room(1));
-        rooms.add(new Room(3));
+        ArrayList<UpdateObject> rooms = new ArrayList<UpdateObject>();
 
         return Response.ok().entity(rooms).build();
     }
