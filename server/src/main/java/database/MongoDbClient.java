@@ -2,6 +2,8 @@ package database;
 
 import java.util.*;
 
+import master.Flags;
+
 import com.google.gson.Gson;
 
 import com.mongodb.MongoClient;
@@ -19,6 +21,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 import com.mongodb.Block;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.MongoCursor;
 
 import org.bson.Document;
 
@@ -36,13 +39,12 @@ public class MongoDbClient {
      * @throws Exception - If it fails to save the object to the database.
      */
     public void save(UpdateObject update) throws MongoException {
-        Gson gson = new Gson();
-        String json = gson.toJson(update);
-        readings.insertOne(Document.parse(json));
+//        Gson gson = new Gson();
+//        String json = gson.toJson(update);
+//        readings.insertOne(Document.parse(json));
     }
 
     public UpdateObject fetchLatestUpdate() {
-        //request last inserted doc
         Document myDoc = readings.find().sort(new Document("_id", -1)).first();
         System.out.println(myDoc);
 
@@ -53,8 +55,6 @@ public class MongoDbClient {
     }
 
     public ArrayList<UpdateObject> queryHistory(int roomID) {
-      System.out.println("Query:");
-
       ArrayList<UpdateObject> history = new ArrayList<>();
       Gson gson = new Gson();
       Block<Document> printBlock = new Block<Document>() {
@@ -69,5 +69,30 @@ public class MongoDbClient {
         readings.find(Filters.eq("lab", roomID)).forEach(printBlock);
 
         return history;
+    }
+
+    public ArrayList<Integer> queryRooms() {
+        System.out.println("query rooms");
+        ArrayList<Integer> rooms = new ArrayList<>();
+        Gson gson = new Gson();
+
+        MongoCursor<Integer> cursor = null;
+        try {
+            cursor = readings.distinct("lab", Integer.class).iterator();
+
+            System.out.println(cursor.hasNext());
+            while (cursor.hasNext()) {
+                rooms.add(cursor.next());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return rooms;
     }
 }

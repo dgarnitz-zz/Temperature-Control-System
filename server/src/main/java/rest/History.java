@@ -30,9 +30,9 @@ public class History {
         ArrayList<UpdateObject> history = dbClient.queryHistory(id);
 
 	    return Response.ok().entity(history).build();
-
     }
 
+    //TODO --> should this be deleted???
     private class Room {
         private int id;
 
@@ -56,7 +56,8 @@ public class History {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRooms() {
 
-        ArrayList<UpdateObject> rooms = new ArrayList<UpdateObject>();
+        ArrayList<Integer> rooms = dbClient.queryRooms();
+        System.out.println(rooms);
 
         return Response.ok().entity(rooms).build();
     }
