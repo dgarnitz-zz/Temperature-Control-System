@@ -80,6 +80,12 @@ public class History {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCurrentTemps() {
         // db.fetch latest update
+        Flags testFlag = new Flags(true, false, true);
+        UpdateObject last = new UpdateObject(33f, 30f, 32.4f, "2019-04-17", 1, testFlag);
+        dbClient.save(last);
+        dbClient.fetchLatestUpdate();
+
+
         UpdateObject update = new UpdateObject(
                 22.3f, 16.7f, 21.0f, "now", 1, new Flags(true, true, true)
         );

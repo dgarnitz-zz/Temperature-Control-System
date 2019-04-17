@@ -23,8 +23,8 @@ public class MongoDbClient {
     MongoClient client = new MongoClient(new MongoClientURI("mongodb://tcs-admin:password1@ds231956.mlab.com:31956/heroku_z0fxw42s"));
     MongoDatabase db = client.getDatabase("heroku_z0fxw42s");
 
-    MongoCollection<Document> test = db.getCollection("test");
-    //MongoCollection<Document> readings = db.getCollection("readings");
+    //MongoCollection<Document> test = db.getCollection("test");
+    MongoCollection<Document> readings = db.getCollection("readings");
 
     /**
      * Save the object into the database.
@@ -34,12 +34,18 @@ public class MongoDbClient {
     public void save(UpdateObject update) throws MongoException {
 //        Gson gson = new Gson();
 //        String json = gson.toJson(update);
-//        test.insertOne(Document.parse(json));
+//        readings.insertOne(Document.parse(json));
+    }
+
+    public void fetchLatestUpdate() {
+        //request last inserted doc
+        Document myDoc = readings.find().sort(new Document("_id", -1)).first();
+        System.out.println(myDoc);
     }
 
     public void queryAll() {
 //      System.out.println("Query:");
-//        MongoCursor<Document> cursor = test.find().iterator();
+//        MongoCursor<Document> cursor = readings.find().iterator();
 //        try {
 //            while (cursor.hasNext()) {
 //                System.out.println(cursor.next().toJson());
