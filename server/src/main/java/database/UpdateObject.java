@@ -3,6 +3,11 @@ package database;
 
 import master.Flags;
 
+/**
+ * This is the update object that gets sent between the master, client and database.
+ * It contains all important information, such as the current temperature and
+ * the upper and lower bound for the temperature ranges.
+ */
 public class UpdateObject {
     private float upper;
     private float lower;

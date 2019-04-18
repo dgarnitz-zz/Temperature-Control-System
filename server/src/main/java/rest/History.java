@@ -17,7 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- *
+ * The /history endpoints allow the client to query for different kinds of data.
  */
 @Path("/history")
 public class History {
@@ -26,10 +26,10 @@ public class History {
     private MongoDbClient dbClient;
 
     /**
-     *
-     *
-     * @param id
-     * @return
+     * The /history/view{id} endpoint queries the database for the temperature history
+     * of rooms with the given id.
+     * @param id - ID of the room
+     * @return list of update objects. Empty if no history was found for the given room.
      */
     @Path("/view{id}")
     @GET
@@ -42,7 +42,9 @@ public class History {
     }
 
     /**
-     *
+     * This is a private class that wraps around an integer ID.
+     * This is used for JAX RS to automatically convert into
+     * JSON and send to the client.
      */
     private class Room {
         private int id;
@@ -63,8 +65,9 @@ public class History {
     }
 
     /**
-     *
-     * @return
+     * The /history/rooms endpoint provides a list of all rooms that
+     * are stored on the database.
+     * @return list of rooms.
      */
     @Path("/rooms")
     @GET
@@ -86,8 +89,9 @@ public class History {
     }
 
     /**
-     *
-     * @return
+     * The /history/current endpoint returns the most recently added update
+     * entry from the database.
+     * @return the most recent update object.
      */
     @Path("/current")
     @GET
