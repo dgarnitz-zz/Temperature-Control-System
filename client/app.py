@@ -29,8 +29,10 @@ def login():
         # res = "true"
         # if response.text == 'true':
         if username == user and password == password_candidate:
+            session['logged_in'] = True
+            session['username'] = username
             flash('Login Successful', 'success')
-            redirect(url_for('base'))
+            redirect(url_for('current'))
         else:
             error = "Invalid username or password"
             return render_template('login.html', error=error)
