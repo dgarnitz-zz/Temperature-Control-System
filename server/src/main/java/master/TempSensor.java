@@ -10,7 +10,7 @@ public class TempSensor {
     private static final float workingTemp = 1.0f;
     private static final float extremeTemp = 20.0f;
     private static final float chanceOfBreaking = 1.0f; //1%
-    private static final float chanceOfMalfunction = 5.0f; //1%
+    private static final float chanceOfMalfunction = 1.0f; //1%
     private static final float heatTemp = 3;
 
     /**

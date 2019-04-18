@@ -16,12 +16,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ *
+ */
 @Path("/history")
 public class History {
 
     @Inject
     private MongoDbClient dbClient;
 
+    /**
+     *
+     *
+     * @param id
+     * @return
+     */
     @Path("/view{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +41,9 @@ public class History {
 	    return Response.ok().entity(history).build();
     }
 
-    //TODO --> should this be deleted???
+    /**
+     *
+     */
     private class Room {
         private int id;
 
@@ -51,17 +62,33 @@ public class History {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Path("/rooms")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRooms() {
-
-        ArrayList<Integer> rooms = dbClient.queryRooms();
-        System.out.println(rooms);
+        ArrayList<Integer> roomsIds = dbClient.queryRooms();
+        ArrayList<Room> rooms = createRooms(roomsIds);
 
         return Response.ok().entity(rooms).build();
     }
 
+    private ArrayList<Room> createRooms(ArrayList<Integer> roomIds) {
+        ArrayList<Room> rooms = new ArrayList<>();
+        for (int i : roomIds) {
+            rooms.add(new Room(i));
+        }
+
+        return rooms;
+    }
+
+    /**
+     *
+     * @return
+     */
     @Path("/current")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

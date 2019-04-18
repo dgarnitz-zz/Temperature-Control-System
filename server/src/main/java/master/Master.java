@@ -61,12 +61,6 @@ public class Master {
         setUpperRange(initialUpperRange);
         df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
         masterConnect = new MasterConnect(this);
-        try {
-            runLoop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
@@ -418,6 +412,12 @@ public class Master {
      * @param args
      */
     public static void main(String[] args) {
-        new Master(1);
+        int i = Integer.valueOf(args[0]);
+        Master master = new Master(i);
+        try {
+            master.runLoop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

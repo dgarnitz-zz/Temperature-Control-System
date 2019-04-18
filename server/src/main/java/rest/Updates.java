@@ -3,8 +3,10 @@ package rest;
 import database.MongoDbClient;
 import database.UpdateObject;
 import master.Flags;
+import server.TempController;
 
 import java.util.HashMap;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -13,38 +15,49 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+
+/**
+ * This is the update endpoint that provides endpoints for the master to send its
+ * periodic updates, and for the client to provide and updates to change the
+ * temperature ranges.
+ */
 @Path("/update")
 public class Updates {
 
     @Inject
     private MongoDbClient dbClient;
 
-    private HashMap<Integer, UpdateObject> tempRanges = new HashMap<>();
+    @Inject
+    private TempController tempController;
 
+    /**
+     * 
+     * @param updateObject
+     * @return
+     */
     @POST
     @Path("/master")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateTemperatures(UpdateObject updateObject) {
-        System.out.println("UpdateObject");
+        System.out.println("Got update from master id: " + updateObject.getLab());
 
         try {
             dbClient.save(updateObject);
-            Flags flags = new Flags(false, false, false);
-//            updateObject.setFlags(flags);
-//            updateObject.setLower(30);
-//            updateObject.setUpper(35);
 
-
-            //TODO send updates if needed (change in temperature ranges)
             int id = updateObject.getLab();
-            if (tempRanges.containsKey(id)) {
-                return Response.ok().entity(tempRanges.get(id)).build();
-            } else {
-                return Response.ok().entity(updateObject).build();
+            Optional<UpdateObject> newRanges = tempController.getTemperatureChange(id);
+
+            if (newRanges.isPresent()) {
+                UpdateObject newUpdate = newRanges.get();
+
+                updateObject.setUpper(newUpdate.getUpper());
+                updateObject.setLower(newUpdate.getLower());
             }
 
-        } catch (Exception e) { //TODO particular exception
+            return Response.ok().entity(updateObject).build();
+
+        } catch (Exception e) {
             e.printStackTrace();
 
             return Response.status(
@@ -53,6 +66,11 @@ public class Updates {
         }
     }
 
+    /**
+     *
+     * @param update
+     * @return
+     */
     @POST
     @Path("/changetemp")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -60,10 +78,9 @@ public class Updates {
     public Response changeTemp(UpdateObject update) {
         int id = update.getLab();
         System.out.println("Got change temp " + id);
-        tempRanges.put(id, update);
+
+        tempController.changeTemperature(id, update);
 
         return Response.ok().entity(update).build();
-
     }
-
 }

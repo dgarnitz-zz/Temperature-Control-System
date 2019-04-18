@@ -70,20 +70,22 @@ public class MasterConnect {
      * @param receivedObject
      */
     private void compareResponse(UpdateObject receivedObject) {
-        if (receivedObject.getLower() != sentObject.getLower()) {
-            master.setLowerRange(receivedObject.getLower());
-        }
-        if (receivedObject.getUpper() != sentObject.getUpper()) {
-            master.setUpperRange(receivedObject.getUpper());
-        }
-        if (!receivedObject.getFlags().getSensor1Flag() && sentObject.getFlags().getSensor1Flag()) {
-            master.fixSensor(1);
-        }
-        if (!receivedObject.getFlags().getSensor2Flag() && sentObject.getFlags().getSensor2Flag()) {
-            master.fixSensor(2);
-        }
-        if (!receivedObject.getFlags().getSensor3Flag() && sentObject.getFlags().getSensor3Flag()) {
-            master.fixSensor(3);
+        if (receivedObject.getLab() == sentObject.getLab()) {
+            if (receivedObject.getLower() != sentObject.getLower()) {
+                master.setLowerRange(receivedObject.getLower());
+            }
+            if (receivedObject.getUpper() != sentObject.getUpper()) {
+                master.setUpperRange(receivedObject.getUpper());
+            }
+            if (!receivedObject.getFlags().getSensor1Flag() && sentObject.getFlags().getSensor1Flag()) {
+                master.fixSensor(1);
+            }
+            if (!receivedObject.getFlags().getSensor2Flag() && sentObject.getFlags().getSensor2Flag()) {
+                master.fixSensor(2);
+            }
+            if (!receivedObject.getFlags().getSensor3Flag() && sentObject.getFlags().getSensor3Flag()) {
+                master.fixSensor(3);
+            }
         }
     }
 }
