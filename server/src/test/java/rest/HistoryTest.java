@@ -63,7 +63,7 @@ public class HistoryTest extends JerseyTest {
 
     @Test
     public void testGetCurrent() {
-        UpdateObject update = new UpdateObject(10f, 5f, 4f, "now", 1, new Flags()):
+        UpdateObject update = new UpdateObject(10f, 5f, 4f, "now", 1, new Flags());
         dbClient.save(update);
 
         final Response res = target("/history/current")

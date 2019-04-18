@@ -42,8 +42,7 @@ public class Master {
     private MasterConnect masterConnect;
 
     /**
-     * Constructor that initialises all temp sensors, heaters, caches, master connect and finally enters the infinite
-     * loop.
+     * Constructor that initialises all temp sensors, heaters, caches, master connect.
      * @param lab the lab number
      */
     public Master(int lab) {
@@ -61,6 +60,30 @@ public class Master {
         setUpperRange(initialUpperRange);
         df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
         masterConnect = new MasterConnect(this);
+    }
+
+    public boolean isSensor1Flag() {
+        return sensor1Flag;
+    }
+
+    public void setSensor1Flag(boolean sensor1Flag) {
+        this.sensor1Flag = sensor1Flag;
+    }
+
+    public MasterConnect getMasterConnect() {
+        return masterConnect;
+    }
+
+    public TempSensor getTempSensor1() {
+        return tempSensor1;
+    }
+
+    public Heater getHeater() {
+        return heater;
+    }
+
+    public void setHeater(Heater heater) {
+        this.heater = heater;
     }
 
     /**
@@ -158,21 +181,21 @@ public class Master {
     }
 
     /**
-     * creates a random starting temperature between 10-30 for all sensors.
+     * creates a random starting temperature between 10-30 for all sensors. (public for test)
      * @return temperature between 10-30 in one dp
      */
-    private float createStartTemp() {
+    public float createStartTemp() {
         double randomDouble = Math.random(); //0-1
         double tempDouble = (randomDouble * highTemp) + lowTemp; //10-30
         return roundOneDp(tempDouble); //converts to 1dp
     }
 
     /**
-     * rounds a double to a one dp float
+     * rounds a double to a one dp float (public for test)
      * @param temp the temperature to be rounded
      * @return rounded temperature
      */
-    private float roundOneDp(double temp) {
+    public float roundOneDp(double temp) {
         return (float) (Math.round(temp * 10) / 10.0); //converts to 1dp
     }
 
@@ -197,7 +220,7 @@ public class Master {
     /**
      * If the heater is on, heats each sensor
      */
-    private void heat() {
+    public void heat() {
         if(heater.getHeaterState()) {
             tempSensor1.heatTemp();
             tempSensor2.heatTemp();
@@ -230,7 +253,7 @@ public class Master {
      * Uses a heartbeat method to ensure the functionality of the sensors, if a sensor is detected as malfunctioning
      * it is flagged
      */
-    private void checkTemps() {
+    public void checkTemps() {
         float temp1 = tempSensor1.getCurrentTemp();
         float temp2 = tempSensor2.getCurrentTemp();
         float temp3 = tempSensor3.getCurrentTemp();
@@ -303,7 +326,7 @@ public class Master {
     /**
      * Adds the average of the functioning sensors to the cluster cache
      */
-    private void addToClusterCache() {
+    public void addToClusterCache() {
         float temp;
         int index = sensor1Cache.size() - 1;
         if (!sensor1Flag && !sensor2Flag && !sensor3Flag) {
@@ -335,6 +358,7 @@ public class Master {
             clusterCache.add(roundOneDp(temp));
         }
     }
+
 
     /**
      * Adds the temperature of the sensor to its cache

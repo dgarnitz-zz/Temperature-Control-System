@@ -27,6 +27,14 @@ public class MasterConnect {
         this.master = master;
     }
 
+    public UpdateObject getSentObject() {
+        return sentObject;
+    }
+
+    public void setSentObject(UpdateObject sentObject) {
+        this.sentObject = sentObject;
+    }
+
     /**
      * returns update object of the current state of the master
      * @param endpoint the endpoint of the server that is to be connected to
@@ -41,10 +49,10 @@ public class MasterConnect {
     }
 
     /**
-     * creates update of the current sate of the master
+     * creates update of the current sate of the master (public for testing)
      * @return update object
      */
-    private UpdateObject createUpdate() {
+    public UpdateObject createUpdate() {
         return new UpdateObject(master.getUpperRange(), master.getLowerRange(), master.getCurrentTemp(), master.getDateTime(), master.getLab(), master.createFlags());
     }
 
@@ -66,10 +74,10 @@ public class MasterConnect {
     }
 
     /**
-     * Compares sent with response update, changes the range or flags if a difference is found
+     * Compares sent with response update, changes the range or flags if a difference is found (public for testing)
      * @param receivedObject
      */
-    private void compareResponse(UpdateObject receivedObject) {
+    public void compareResponse(UpdateObject receivedObject) {
         if (receivedObject.getLab() == sentObject.getLab()) {
             if (receivedObject.getLower() != sentObject.getLower()) {
                 master.setLowerRange(receivedObject.getLower());
